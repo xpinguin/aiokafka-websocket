@@ -9,7 +9,7 @@ setup(
 
         packages = ["aiokafka_websocket_reader"],
         entry_points = {"console_scripts": [
-            "aiokafka_wss = aiokafka_websocket_reader.__main__",
+            "aiokafka_wss = aiokafka_websocket_reader.__main__:main",
         ]},
 
         install_requires = ["aiokafka", "aiohttp"],
