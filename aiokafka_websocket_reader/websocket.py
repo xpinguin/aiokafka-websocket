@@ -2,6 +2,7 @@
 import typing as _t
 from aiohttp import web
 from urllib.parse import parse_qsl
+import inspect
 
 
 #===============================================================================
@@ -25,12 +26,13 @@ async def stream_to_websocket(stream_ctor :_t.Callable[[web.Request], _t.AsyncIt
         async for d in stream:
             if not isinstance(d, (str, bytes)):
                 d = str(d)
-            if isinstance(d, str):
-                ws.send_str(d)
-            else:
-                ws.send_bytes(d)
-            # Q: shall we drain less frequently?
-            await ws.drain()
+            co = (ws.send_str(d) if isinstance(d, str) else ws.send_bytes(d))
+            if co: # another aiohttp compat layer :(
+                try:
+                    await co
+                except TypeError:
+                    pass
+            await ws.drain() # Q: shall we drain less frequently?
     finally:
         await ws.close()
         try:
