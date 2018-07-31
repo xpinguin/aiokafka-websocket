@@ -6,7 +6,7 @@ from aiohttp import web
 #===============================================================================
 # WEBSOCKET / ASYNC-STREAM
 #===============================================================================
-async def stream_to_websocket(stream_ctor :_t.Callable[[web.Request], _t.Awaitable[_t.AsyncIterable]],
+async def stream_to_websocket(stream_ctor :_t.Callable[[web.Request], _t.AsyncIterable],
                               req :web.Request):
     """Drain stream into websocket channel"""
     # TODO:
