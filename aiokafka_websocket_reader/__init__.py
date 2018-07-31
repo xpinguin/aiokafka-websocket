@@ -75,7 +75,8 @@ def kafka_websocket_reader_main(kafka_brokers, wss = ("0.0.0.0", 8080), *, loop,
 def kafka_websocket_reader_thread(kafka_brokers, wss :_t.Tuple[str, int] = None, *,
                                   runner = kafka_websocket_reader_main,
                                   auto_stop_runner = True,
-                                  _io_thread = lambda runner: runner(loop = aio.new_event_loop()),
+                                  _io_threadfunc = lambda runner: runner(loop = aio.new_event_loop()),
+                                  _io_use_main_thread = False, # HACK!
                                   **runner_kwargs):
     runner_args = [kafka_brokers]
     if (wss):
@@ -83,11 +84,15 @@ def kafka_websocket_reader_thread(kafka_brokers, wss :_t.Tuple[str, int] = None,
 
     # init
     app_ctx, _app_ctx_sem = [], Semaphore(0)
-    app_th = Thread(target = _io_thread,
+    app_th = Thread(target = _io_threadfunc or (lambda r: r(loop = aio.get_event_loop())),
                     args = [partial(runner, *runner_args, **runner_kwargs,
                                             _ctx = app_ctx, _ctx_sem = _app_ctx_sem)])
-    app_th.start()
-    _app_ctx_sem.acquire()
+
+    if (_io_use_main_thread):
+        app_th.run() ### FIXME: that would obviously block
+    else:
+        app_th.start()
+        _app_ctx_sem.acquire()
     assert isinstance(app_ctx[0], web.Application)
 
     # running

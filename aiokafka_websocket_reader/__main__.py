@@ -32,9 +32,9 @@ def main():
         _main_args.append(wss_hostport)
 
     # running
-    with kafka_websocket_reader_thread(*_main_args) as _loop_rdrth:
-        # -- Windows NT (crippled) terminal, no signals...
-        if (os.name == "nt"):
+    # -- Windows NT (crippled) terminal, no signals...
+    if (sys.platform == "win32"):
+        with kafka_websocket_reader_thread(*_main_args):
             while (True):
                 try:
                     input("<EOF for stop>")
@@ -42,10 +42,10 @@ def main():
                     break
                 except:
                     pass
-        # -- POSIX terminal, with signals!
-        else:
-            rdrth = _loop_rdrth[1]
-            rdrth.join()
+    # -- POSIX terminal, with signals!
+    else:
+        with kafka_websocket_reader_thread(*_main_args, _io_threadfunc = None, _io_use_main_thread = True):
+            pass
 
 if (__name__ == "__main__"):
     main()
