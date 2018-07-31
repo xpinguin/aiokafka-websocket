@@ -3,7 +3,9 @@ import asyncio as aio
 import traceback
 import json
 
-from aiokafka import AIOKafkaConsumer, TopicPartition, ConsumerRecord
+from ._compat import Compat_AIOKafkaConsumer as AIOKafkaConsumer
+from aiokafka import TopicPartition, ConsumerRecord
+
 
 
 #===============================================================================
