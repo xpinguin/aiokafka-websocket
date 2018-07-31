@@ -3,7 +3,7 @@
     Ensure compatibility, hot-fix buggy packages
 """
 from typing import *
-from aiokafka.consumer.subscription_state import SubscriptionState
+from aiokafka.consumer.subscription_state import SubscriptionState, SubscriptionType, ManualSubscription
 from aiokafka.consumer import AIOKafkaConsumer
 from aiokafka import TopicPartition
 
@@ -14,11 +14,18 @@ from aiokafka import TopicPartition
 # - FASCIST ASSERTION #1 -
 class Compat_SubscriptionState(SubscriptionState):
     def assign_from_subscribed(self, assignment: Set[TopicPartition]):
-        #assert self._subscription_type in [
-        #   SubscriptionType.AUTO_PATTERN, SubscriptionType.AUTO_TOPICS]
-
         self._subscription._assign(assignment)
         self._notify_assignment_waiters()
+
+    def assign_from_user(self, partitions: Set[TopicPartition]):
+        self._set_subscription_type(SubscriptionType.USER_ASSIGNED)
+        self._change_subscription(Compat_ManualSubscription(partitions, loop = self._loop))
+        self._notify_assignment_waiters()
+
+# - FASCIST ASSERTION #2 -
+class Compat_ManualSubscription(ManualSubscription):
+    def _assign(self, topic_partitions: Set[TopicPartition]):
+        pass
 
 class Compat_AIOKafkaConsumer(AIOKafkaConsumer):
     def __init__(self, *topics, **opts):
@@ -31,6 +38,6 @@ class Compat_AIOKafkaConsumer(AIOKafkaConsumer):
 # EXPORTS
 #===============================================================================
 __all__ = (
-    Compat_SubscriptionState.__name__,
+    Compat_SubscriptionState.__name__, Compat_ManualSubscription.__name__,
     Compat_AIOKafkaConsumer.__name__,
 )
