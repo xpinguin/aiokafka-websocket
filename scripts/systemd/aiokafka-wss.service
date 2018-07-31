@@ -6,8 +6,8 @@ Requires=network.target
 [Service]
 Type=simple
 Environment="KAFKA_BROKERS=127.0.0.1:9092" "WSS_BIND=127.0.0.1:9980"
-EnvironmentFile=-/etc/kafka-wss/config
-ExecStart=kafka-wss ${KAFKA_BROKERS} ${WSS_BIND}
+EnvironmentFile=-/etc/aiokafka-wss/config
+ExecStart=/bin/aiokafka-wss ${KAFKA_BROKERS} ${WSS_BIND}
 Restart=on-failure
 RestartSec=10
 TimeoutSec=300
