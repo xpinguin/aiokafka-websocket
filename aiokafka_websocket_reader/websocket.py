@@ -3,6 +3,7 @@ import typing as _t
 from aiohttp import web
 from urllib.parse import parse_qsl
 
+
 #===============================================================================
 # WEBSOCKET / ASYNC-STREAM
 #===============================================================================
@@ -10,8 +11,8 @@ async def stream_to_websocket(stream_ctor :_t.Callable[[web.Request], _t.AsyncIt
                               req :web.Request):
     """Drain stream into websocket channel"""
     # TODO:
-    # - check and apply params
-    # - propagate excs to HTTP layer.
+    # [x/-] check and apply params
+    # [-] propagate excs to HTTP layer.
     req_GET = dict(parse_qsl(req.query_string, keep_blank_values = True))
     stream = stream_ctor(req, **req_GET)
 
